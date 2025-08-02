@@ -8,13 +8,21 @@
   <link rel="stylesheet" href="style.css" type="text/css"/>
 </head>
 <body>
-  <div class="container-tetris">
-    <canvas>
+  <div class="contenedor-tetris">
+    <canvas id="tetris" class="tetris">
     
     </canvas>
     <div class="puntuacion">
-      <h2 id="jugador"></h2>
-      <p >score: <span id="score">0</span></p>
+      <div>
+        <h2 id="jugador"></h2>
+        <p>score: <span id="score">0</span></p>
+      </div>
+      
+      <div class="contenedor-piezaSig">
+        <h2>sig</h2>
+        <canvas id="piezaSig"></canvas>
+      </div>
+    
     </div>
     <div class="flechas">
       <button id="left"><</button>
