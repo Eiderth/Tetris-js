@@ -91,10 +91,6 @@ canvasTetris.width = blockSize * tetrisWidth;
 canvasPiezaSig.width = blockSizeSig * canvasSigWidth;
 canvasPiezaSig.height = blockSizeSig * canvasSigHeight;
 
-
-
-
-
 const rotacion = (matriz) => {
   const filas = matriz.length;
   const columnas = matriz[0].length;
@@ -110,7 +106,6 @@ const rotacion = (matriz) => {
   }
   return matrizTraspuesta;
 }
-
 
 btnLeft.addEventListener('click', () => {
   piezaJugador.posicion.x--
