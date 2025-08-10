@@ -8,66 +8,77 @@ const blockSizeSig = 20;
 const canvasSigWidth = 5;
 const canvasSigHeight = 5;
 
+
 const root = document.documentElement
 const colorPadre = getComputedStyle(root).getPropertyValue('--fondo-padre');
 
 const piezas = [
-  [
-    [1,1],
-    [1,1]
-  ],
-  [
-    [0,1,0],
-    [1,1,1]
-  ],
-  [
-    [0,1,0],
-    [1,1,1],
-    [0,1,0]
-  ],
-  [
-    [0,1],
-    [0,1],
-    [0,1],
-    [1,1]
-  ],
-  [
-    [1,0],
-    [1,0],
-    [1,0],
-    [1,1]
-  ],
-  [
-    [1,0,0],
-    [1,1,0],
-    [1,1,1]
-  ]
+  {
+    pieza:[
+      [0,0],
+      [0,0]
+    ],
+    color: 'red'
+  }
+  ,
+  {
+    pieza:[
+      [-1, 1, -1],
+      [1, 1, 1]
+    ],
+    color: 'green'
+  }
+  ,
+  {
+    pieza:[
+      [-1, 2],
+      [-1, 2],
+      [-1, 2],
+      [2, 2]
+    ],
+    color: 'yellow'
+  }
+  ,
+  {
+    pieza:[
+      [3,-1],
+      [3,-1],
+      [3,-1],
+      [3,3]
+    ],
+    color: 'blueviolet'
+  }
+  ,
+  {
+    pieza: [
+      [4, -1, -1],
+      [4, 4, -1],
+      [4, 4, 4]
+    ],
+    color: 'orange'
+  }
 ];
-
-const colores = [ 
-  'red', 'green', 'yellow', 'blueviolet', 'orange', 'blueviolet'
-];
-
+let numCentPieza = Math.floor(Math.random() * piezas.length);
 const piezaJugador = {
   nombre : null,
   score: 0,
   posicion : {
     x : 4, y : 1
   },
-
-  pieza : piezas[parseInt(Math.random() * piezas.length)],
-  color: colores[parseInt(Math.random() * colores.length)]
+  
+  pieza :piezas[numCentPieza].pieza,
+  color: piezas[numCentPieza].color
 };
 
+numCentPieza = Math.floor(Math.random() * piezas.length);
 const piezaSig = {
-  pieza : piezas[Math.floor(Math.random()*piezas.length)],
-  color : colores[Math.floor(Math.random()*colores.length)]
+  pieza : piezas[numCentPieza].pieza,
+  color : piezas[numCentPieza].color
 }
-
 function reiniciarBoard() {
   const board = [];
   for (let i = 0; i < tetrisHeight; i++) {
-    board[i] = Array(tetrisWidth).fill(0)
+    board[i] = Array(tetrisWidth).fill(-1)
   }
   return board;
 }
@@ -115,7 +126,6 @@ btnLeft.addEventListener('click', () => {
 });
 
 btnTop.addEventListener('click', () => {
-  const piezaOriginal = piezaJugador.pieza;
   piezaJugador.pieza = rotacion(piezaJugador.pieza);
   if (colision()) {
     if (piezaJugador.posicion.x > (tetrisWidth/2)) {
@@ -129,7 +139,6 @@ btnTop.addEventListener('click', () => {
         piezaJugador.posicion.x ++
       } while (colision())
     }
-    
   }
 });
 
@@ -144,20 +153,48 @@ btnBotton.addEventListener('click', () => {
   piezaJugador.posicion.y++;
 })
 
+document.addEventListener('keydown', function(event) {
+  event.preventDefault()
+  if (event.key === 'ArrowUp') {
+    piezaJugador.pieza = rotacion(piezaJugador.pieza);
+    if (colision()) {
+      if (piezaJugador.posicion.x > (tetrisWidth / 2)) {
+        piezaJugador.posicion.x = tetrisWidth;
+        do {
+          piezaJugador.posicion.x--
+        } while (colision())
+      } else {
+        piezaJugador.posicion.x = 0;
+        do {
+          piezaJugador.posicion.x++
+        } while (colision())
+      }
+    }
+  } else if (event.key === 'ArrowDown') {
+    piezaJugador.posicion.y++;
+  } else if (event.key === 'ArrowLeft') {
+    piezaJugador.posicion.x--
+    if(colision()){
+      piezaJugador.posicion.x++; 
+    }
+  } else if (event.key === 'ArrowRight') {
+    piezaJugador.posicion.x++;
+    if (colision()) {
+      piezaJugador.posicion.x--;
+    }
+  }
+});
+
 const ctx = canvasTetris.getContext('2d');
 const ctxPiezaSig = canvasPiezaSig.getContext('2d');
 
 const dibujar = (x,y, value) => {
-  if (value == 0) {
+  if (value == -1) {
     ctx.fillStyle = color0
-  } else if (value == 1) {
-    ctx.fillStyle = piezaJugador.color
   } else {
-    ctx.fillStyle = 'blue'
+    ctx.fillStyle = piezas[value].color
   }
-  
   ctx.fillRect(x * blockSize,y *blockSize, blockSize, blockSize);
-  ctx.fill();
 }
 
 const dibujarBoard = () => {
@@ -189,7 +226,7 @@ const colision = () => {
   let boleanCent = false
   piezaJugador.pieza.forEach((array, y) => {
     array.forEach((value, x) => {
-      if (value == 1 && board[y+piezaJugador.posicion.y]?.[x+piezaJugador.posicion.x] != 0) {
+      if (value != -1 && board[y+piezaJugador.posicion.y]?.[x+piezaJugador.posicion.x] != -1) {
         boleanCent = true;
       } 
     })
@@ -200,8 +237,8 @@ const colision = () => {
 const solidificacion = () => {
   piezaJugador.pieza.forEach((arr,y) => {
     arr.forEach((value, x) => {
-      if (value == 1) {
-        board[y+piezaJugador.posicion.y][x+piezaJugador.posicion.x] = 2;
+      if (value != -1) {
+        board[y+piezaJugador.posicion.y][x+piezaJugador.posicion.x] = value;
       }
     })
   })
@@ -209,28 +246,26 @@ const solidificacion = () => {
 
 const removeFila = () => {
  for (let i = 0; i < board.length; i++) {
-    if(board[i].every(element => element != 0)){
+    if(board[i].every(element => element != -1)){
       piezaJugador.score += 100;
       scoreSpan.textContent = `${piezaJugador.score}`;
       board.splice(i, 1);
-      board.unshift(Array(tetrisWidth).fill(0))
+      board.unshift(Array(tetrisWidth).fill(-1))
     }
   }
 }
 
 const dibujarSig = (x,y,color) => {
   ctxPiezaSig.fillStyle = color;
-  ctxPiezaSig.fillRect(x*blockSizeSig,y*blockSizeSig,blockSize,blockSize);
-  ctxPiezaSig.fill()
+  ctxPiezaSig.fillRect(x*blockSizeSig,y*blockSizeSig,blockSizeSig,blockSizeSig);
 }
 
 const dibujarPiezaSig = (pieza) => {
   ctxPiezaSig.fillStyle = colorPadre;
   ctxPiezaSig.fillRect(0,0,canvasPiezaSig.width,canvasPiezaSig.height)
-  ctxPiezaSig.fill()
   pieza.forEach((arr,y) => {
     arr.forEach((value, x) => {
-      if (value !== 0){
+      if (value !== -1){
         dibujarSig((canvasSigWidth/2- pieza[0].length/2)+x,(canvasSigHeight/2-pieza.length/2)+y, piezaSig.color)
       } 
     })
@@ -247,8 +282,9 @@ const actualizacion = () => {
     piezaJugador.posicion.x = 4;
     piezaJugador.pieza = piezaSig.pieza;
     piezaJugador.color = piezaSig.color;
-    piezaSig.pieza = piezas[Math.floor(Math.random()*piezas.length)];
-    piezaSig.color = colores[Math.floor(Math.random()*colores.length)]
+    numCentPieza = Math.floor(Math.random()*piezas.length)
+    piezaSig.pieza = piezas[numCentPieza].pieza;
+    piezaSig.color = piezas[numCentPieza].color
     if (colision()) {
       alert('game over')
       board = reiniciarBoard()
