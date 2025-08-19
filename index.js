@@ -56,6 +56,12 @@ const piezas = [
       [4, 4, 4]
     ],
     color: 'orange'
+  },
+  {
+    pieza: [
+      [5,5,5,5]
+    ],
+    color: 'violet'
   }
 ];
 let numCentPieza = Math.floor(Math.random() * piezas.length);
